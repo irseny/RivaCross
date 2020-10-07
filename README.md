@@ -13,9 +13,9 @@ Examples
 These examples show different crosshair styling made with RivaCross.<br>
 Levels of usability may vary.
 
-[RivaCross in Games #1](docs/images/example00_clear_sky.png)
+[RivaCross in Games #1](docs/images/example00_clear_sky.jpg)
 
-[RivaCross in Games #2](docs/images/example01_mankind_divided.png)
+[RivaCross in Games #2](docs/images/example01_mankind_divided.jpg)
 
 Releases
 --------
