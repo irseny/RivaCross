@@ -1,0 +1,6 @@
+# ignore build output and additional libraries
+RivaCross.exe
+obj/*.obj
+lib/*.lib
+lib/*.dll
+lib/*.exp

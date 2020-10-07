@@ -1,0 +1,4 @@
+[submodule "external/pdcurses"]
+	path = external/pdcurses
+	url = https://github.com/wmcbrine/PDCurses.git
+	branch = 3.9
