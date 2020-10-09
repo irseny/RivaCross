@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 	// which is loading a config in this case
 	helpWelcome(&state);
 	config = configureStart(argc, argv, &state);
-	if (RTSSUpdateOSDEntry(&config, RivaCrossOSDEntryName) == 0) {
+	if (RTSSUpdateOSDEntry(&config, RivaCrossOSDEntryName) != 0) {
 		printw("Failed to connect to RTSS\n");
 	} else {
 		printw("Successfully connected to RTSS\n");
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 	} else {
 		printf("Clean exit\n");
 		// cleanup RTSS view
-		if (RTSSReleaseOSDEntry(RivaCrossOSDEntryName) == 0) {
+		if (RTSSReleaseOSDEntry(RivaCrossOSDEntryName) != 0) {
 			printf("Failed to disconnect from RTSS\n");
 		} else {
 			printf("Successfully disconnected from RTSS\n");

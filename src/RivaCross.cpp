@@ -528,7 +528,7 @@ CrossActionType runInteractiveProgram(RTSSCrossConfig* config, RenderPassState* 
 		if (updatePending) {
 			addch(' ');
 			state->linesFilled += 1;
-			if (RTSSUpdateOSDEntry(config, RivaCrossOSDEntryName) == 0) {
+			if (RTSSUpdateOSDEntry(config, RivaCrossOSDEntryName) != 0) {
 				printw("Failed to send active config to RTSS\n");
 				state->linesFilled += 1;
 			} 

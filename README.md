@@ -2,11 +2,11 @@ RivaCross - Customizable Crosshair Overlay
 ==========================================
 
 Adds a customizable crosshair to MSI Afterburner /
-RivaTuner Statistics Server overlays
+RivaTuner Statistics Server on screen display
 
 RivaCross makes use of a feature in RivaTuner Statistics Server (RTSS)
-that allows for adding custom text to RTSS overlays.<br>
-It includes a simple, text-based user interface for crosshair customization.
+that enables the addition of custom text to the RTSS on screen display (OSD).<br>
+It includes a simple, text terminal user interface for crosshair customization.
 
 Examples
 --------
@@ -16,6 +16,8 @@ Levels of usability may vary.
 [RivaCross in Games #1](docs/images/example00_clear_sky.jpg)
 
 [RivaCross in Games #2](docs/images/example01_mankind_divided.jpg)
+
+[RivaCross in Games #3](docs/images/example02_acc.jpg)
 
 Releases
 --------
@@ -27,8 +29,10 @@ Usage
 
 1. Open MSI Afterburner / RivaTuner Statistics Server
 1. Execute RivaCross.exe
-1. For customization follow the instructions on screen
+1. For crosshair customization follow the instructions on screen
 
+For bug reports or feature suggestions please use the 
+[Issues section](https://github.com/irseny/RivaCross/issues).
 
 Manual Build
 ------------
@@ -77,7 +81,8 @@ have been used as a starting point for RivaCross.
 
 Special thanks to
 [Guru3D](https://www.guru3d.com)
-for RivaTuner Statistics Server and the RTSS SDK.
+for [RivaTuner Statistics Server](https://www.guru3d.com/content-page/rivatuner.html)
+and the RTSS SDK.
 
 License
 -------
