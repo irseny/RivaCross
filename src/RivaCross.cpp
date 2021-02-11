@@ -39,7 +39,7 @@ void helpCommands(RenderPassState* state) {
 	printw("Q - quit the program\n");
 	printw("CTRL + Q - quit the program but retain a visible crosshair\n");
 	printw("CTRL + O - load an existing config\n");
-	printw("T - set the crosshair character\n");
+	printw("T - set the crosshair character/text\n");
 	printw("NUM- and NUM+ - change the crosshair size\n");
 	printw("S - set the crosshair size\n");
 	printw("C - set the crosshair color\n");
@@ -83,19 +83,28 @@ int loadConfig(char* configPath, RTSSCrossConfig* config) {
 	}
 	bool complete = false;
 	char line[32];
-	char crosshair[16];
+	char crosshair[32];
 	unsigned int posX, posY, scale;
 	unsigned int red, green, blue;
 	do {
-		// read crosshair character
+		// read crosshair line
 		char* content = fgets(line, sizeof(line), file);
 		if (!content) {
 			break;
 		}
-		
-		if (sscanf(content, "%s", crosshair) < 1) {
-			break;
+		// exclude everything from the first newline character
+		int lineLength = strlen(content);
+		int crosshairLength = 0;
+		for (; crosshairLength < lineLength; crosshairLength++) {
+			if (content[crosshairLength] == '\n' ||
+				content[crosshairLength] == '\r') {
+				break;
+			}
 		}
+		crosshairLength = min(crosshairLength, sizeof(crosshair) - 1);
+		strncpy(crosshair, content, crosshairLength);
+		crosshair[crosshairLength] = '\0';
+		
 		// read position x
 		content = fgets(line, sizeof(line), file);
 		if (!content) {
@@ -138,7 +147,9 @@ int loadConfig(char* configPath, RTSSCrossConfig* config) {
 	fclose(file);
 	// apply values after reading successfully
 	if (complete) {
-		strncpy(config->crosshair, crosshair, sizeof(crosshair));
+
+		strncpy(config->crosshair, crosshair, min(sizeof(config->crosshair) - 1, sizeof(crosshair) - 1));
+		config->crosshair[sizeof(config->crosshair) - 1] = '\0';
 		config->position[0] = posX;
 		config->position[1] = posY;
 		config->scale = scale;
@@ -166,7 +177,8 @@ RTSSCrossConfig configureStart(int argc, char** argv, RenderPassState* state) {
 	if (argc < 2) {
 		printw("Using default config\n");
 	} else {
-		strncpy(configName, argv[1], sizeof(configName));
+		strncpy(configName, argv[1], sizeof(configName) - 1);
+		configName[sizeof(configName) - 1] = '\0';
 		printw("Using config %s\n", configName);
 	}
 	state->linesFilled += 1;
@@ -455,10 +467,11 @@ bool processRenameUserAction(CrossActionArgs* args, RTSSCrossConfig* config, Ren
 	refresh();
 	char inputBuffer[64];
 	echo();
-	getnstr(inputBuffer, sizeof(inputBuffer)-1);
+	getnstr(inputBuffer, sizeof(inputBuffer) - 1);
 	state->linesFilled += 2;
 	// process user input
-	strncpy(config->crosshair, inputBuffer, min(sizeof(config->crosshair), sizeof(inputBuffer)));
+	strncpy(config->crosshair, inputBuffer, min(sizeof(config->crosshair) - 1, sizeof(inputBuffer)));
+	config->crosshair[sizeof(config->crosshair) - 1] = '\0';
 	printw("New crosshair is %s\n", config->crosshair);
 	state->linesFilled += 1;
 	args->action = CrossActionType::None;
