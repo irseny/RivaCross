@@ -22,9 +22,9 @@ Levels of usability may vary.
 Releases
 --------
 
-The first binary package of RivaCross is available in the 
+The current binary package of RivaCross is available in the 
 [Releases section](https://github.com/irseny/RivaCross/releases)
-([Direct download](https://github.com/irseny/RivaCross/releases/download/v0.5/RivaCross.Windows.64bit.zip))
+([Direct download](https://github.com/irseny/RivaCross/releases/download/v0.5.1/RivaCross.Windows.64bit.zip)
 
 Usage
 -----
@@ -42,25 +42,24 @@ Manual Build
 If not done already initialize and update the PDCurses dependency:
 1. `git submodule update --init`
 
-Do a static build of the PDCurses library:
-1. Open a developer console
+Do a static build of the PDCurses library from a developer console:
 1. Navigate to `external/pdcurses/wincon`
 1. `nmake -f Makefile.vc WIDE=Y UTF8=Y`
 1. From there copy `pdcurses.lib` to the `lib` folder at the root of the repository
 
-Build RivaCross.exe:
-1. Open a developer console
+Build RivaCross from a developer console:
 1. Navigate to the root of the repository
 1. `nmake`
+1. A successful build yields the console application `RivaCross.exe`
 
 Limitations
 -----------
 * The crosshair is limited to one line of text
-  - might be overcome with a more advanced configuration interface in the future
+  - any further work in this direction is unlikely
 * The application does not necessarily understand all keys
-  - certain keys could get fixed in the future
+  - probably a limitation of the technology and not easily fixable
 * The crosshair can only be moved when the configuration window is in focus
-  - there are plans to maybe implement a testing area to work around this issue
+  - enter the movement mode with M, then the crosshair can be moved while another windows is in focus
 * Availability of colorization and scaling features depend on RTSS rendering mode
   - try out a different rendering mode (Vector2D, Vector3D, Raster)
 * The crosshair positioning is not very fine grained
@@ -71,6 +70,7 @@ Limitations
   - this behaviour exists for simplicity reasons and is required for the "hard exit" feature
 * Configuration presets must be created and modified manually in the `config` folder
   - see [`config/HELPME.md`](config/HELPME.md) for formatting information
+  - a saving feature could be implemented if requested
 
 Credits
 -------
