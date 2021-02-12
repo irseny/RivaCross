@@ -71,6 +71,7 @@ int main(int argc, char** argv) {
 	endwin();
 	if (exitMode == CrossActionType::ExitHard) {
 		printf("Hard exit\n");
+		printf("The crosshair should remain visible in the last configuration\n");
 	} else {
 		printf("Clean exit\n");
 		// cleanup RTSS view

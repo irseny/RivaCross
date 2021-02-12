@@ -36,8 +36,8 @@ void helpCommands(RenderPassState* state) {
 	// TODO use lines filled state or remove it entirely
 	//move(state->linesFilled, 0);
 	printw("Commands:\n");
-	printw("Q - quit the program\n");
-	printw("CTRL + Q - quit the program but retain a visible crosshair\n");
+	printw("Q - quit RivaCross\n");
+	printw("CTRL + Q - quit RivaCross but retain a visible crosshair\n");
 	printw("CTRL + O - load an existing config\n");
 	printw("T - set the crosshair character/text\n");
 	printw("NUM- and NUM+ - change the crosshair size\n");
@@ -403,35 +403,121 @@ bool processTintUserAction(CrossActionArgs* args, RTSSCrossConfig* config, Rende
 	// we expect some lines to wrap so we get the actual number of lines written from curses
 	int cursorX, cursorY;
 	getsyx(cursorY, cursorX);
-	state->linesFilled += cursorY - state->linesFilled;
+	state->linesFilled = cursorY;
 	args->action = CrossActionType::None;
 	// indicate if an update of RTSS memory is required
 	return changed;
 }
 bool processMoveUserAction(CrossActionArgs* args, RTSSCrossConfig* config, RenderPassState* state) {
-	bool changed = false;
-	// get user input
 	printw("Current position is %i, %i\n", config->position[0], config->position[1]);
+	printw("Use the direction keys and exit with ENTER or\n");
 	printw("Enter new position (x, y): ");
 	refresh();
-	char inputBuffer[256];
-	echo();
-	getnstr(inputBuffer, sizeof(inputBuffer)-1);
-	state->linesFilled += 2;
-	// process user input
-	int posX, posY;
-	if (sscanf(inputBuffer, "%i,%i", &posX, &posY) < 2) {
-		printw("Wrong format! Please specify your desired position as ");
-		printw("two comma separated integers (e.g. 477, 245)\n");
-	} else {
-		config->position[0] = posX;
-		config->position[1] = posY;
-		changed = true;
-		printw("New position is %i, %i\n", config->position[0], config->position[1]);
+	
+	// get user input
+	// first allow crosshair movement with the direction keys
+	// but enter number input mode as soon as a number key is pressed
+	const int ctrlMod = 0x60; 
+	bool numberStarted = false;
+	bool moveOrdered = false;
+	bool moveAborted = false;
+	nodelay(stdscr, true);
+	while (!numberStarted && !moveOrdered && !moveAborted) {
+		int input = getch();
+		// scan for direction keys
+		// these also activate if the console window is out of focus
+		bool moved = false;
+		int modifier = 1;
+		if (GetKeyState(VK_CONTROL) & 0x8000) {
+			modifier = 10;
+		}
+		if (GetKeyState(VK_LEFT) & 0x8000) {
+			args->deltaX = -modifier;
+			moved = true;
+		}
+		if (GetKeyState(VK_RIGHT) & 0x8000) {
+			args->deltaX = modifier;
+			moved = true;
+		}
+		if (GetKeyState(VK_UP) & 0x8000) {
+			args->deltaY = -modifier;
+			moved = true;
+		}
+		if (GetKeyState(VK_DOWN) & 0x8000) {
+			args->deltaY = modifier;
+			moved = true;
+		}
+		if (GetKeyState(VK_RETURN) & 0x8000) {
+			moveAborted = true;
+		}
+		// process the details outside this function
+		// but come back to it (action type is still MOVE)
+		if (moved) {
+			flushinp(); // throw away repeated direction keys from the input queue
+			ungetch('m'); // put something in the queue so that this function is called again
+			moveOrdered = true;
+		} else {
+			switch (input) {
+			case 'q':
+			case '\n':
+			case KEY_ENTER:
+			case (ctrlMod^'c'):
+				// end position modification with CTRL+C, Q and ENTER
+				moveAborted = true;
+				break;
+			case '0': case '1':
+			case '2': case '3':
+			case '4': case '5':
+			case '6': case '7':
+			case '8': case '9':
+				// jump to manual specification below
+				ungetch(input);
+				numberStarted = true;
+				break;
+			default:
+				// ignore everything else
+				break;
+			}
+		}
+		Sleep(50); // wait some more so that the user easily do single steps
 	}
-	state->linesFilled += 1;
+	nodelay(stdscr, false);
+	if (moveAborted) {
+		args->action = CrossActionType::None;
+		return false;
+	}
+	if (moveOrdered) {
+		return true;
+	}
+	if (numberStarted) {
+		// a number key was pressed
+		// continue to read number input until the user hits enter
+		bool changed = false;
+		char inputBuffer[256];
+		echo();
+		getnstr(inputBuffer, sizeof(inputBuffer)-1);
+		state->linesFilled += 2;
+		// process user input
+		int posX, posY;
+		if (sscanf(inputBuffer, "%i,%i", &posX, &posY) < 2) {
+			printw("Wrong format! Please specify your desired position as ");
+			printw("two comma separated integers (e.g. 477, 245)\n");
+		} else if (posX < 0 || posY < 0) {
+			printw("Wrong format! Please use only positive valus\n");
+		} else {
+			config->position[0] = posX;
+			config->position[1] = posY;
+			changed = true;
+			printw("New position is %i, %i\n", config->position[0], config->position[1]);
+		}
+		int cursorX, cursorY;
+		getsyx(cursorY, cursorX);
+		state->linesFilled = cursorY;
+		args->action = CrossActionType::None;
+		return changed;
+	}
 	args->action = CrossActionType::None;
-	return changed;
+	return false;
 }
 bool processScaleUserAction(CrossActionArgs* args, RTSSCrossConfig* config, RenderPassState* state) {
 	bool changed = false;
