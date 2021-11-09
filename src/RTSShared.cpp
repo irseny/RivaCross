@@ -10,9 +10,9 @@ int RTSSUpdateOSDEntry(const RTSSCrossConfig* config, const char* osdEntry) {
 	// initially not updated successfully 
 	int result = 1;
 	char targetText[256];
-	snprintf(targetText, sizeof(targetText), "<P=%d,%d><S=%d><C0=%02x%02x%02x><C0>%s", 
+	snprintf(targetText, sizeof(targetText), "<P=%d,%d><S=%d><C0=%02x%02x%02x%02x><C0>%s", 
 		config->position[0], config->position[1], config->scale, 
-		config->color[0], config->color[1], config->color[2], config->crosshair);
+		config->color[3], config->color[0], config->color[1], config->color[2], config->crosshair);
 	//printw("sending %s\n", targetText);
 	
 	// write config to shared RTSS memory

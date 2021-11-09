@@ -55,7 +55,7 @@ void helpActiveConfig(RTSSCrossConfig* config, RenderPassState* state) {
 	printw("Crosshair: %s\n", config->crosshair);
 	printw("Position: %d %d\n", config->position[0], config->position[1]);
 	printw("Size: %d\n", config->scale);
-	printw("Color: #%02x%02x%02x\n", config->color[0], config->color[1], config->color[2]);
+	printw("Color: #%02x%02x%02x%02x\n", config->color[0], config->color[1], config->color[2], config->color[3]);
 	state->linesFilled += 5;
 }
 
@@ -69,6 +69,7 @@ bool initConfig(RTSSCrossConfig* config) {
 	config->color[0] = 0xFF;
 	config->color[1] = 0xFF;
 	config->color[2] = 0xFF;
+	config->color[3] = 0xFF;
 	config->scale = 100;
 	return true;
 }
@@ -85,7 +86,7 @@ int loadConfig(char* configPath, RTSSCrossConfig* config) {
 	char line[32];
 	char crosshair[32];
 	unsigned int posX, posY, scale;
-	unsigned int red, green, blue;
+	unsigned int red, green, blue, alpha;
 	do {
 		// read crosshair line
 		char* content = fgets(line, sizeof(line), file);
@@ -101,7 +102,7 @@ int loadConfig(char* configPath, RTSSCrossConfig* config) {
 				break;
 			}
 		}
-		crosshairLength = min(crosshairLength, sizeof(crosshair) - 1);
+		crosshairLength = imin(crosshairLength, sizeof(crosshair) - 1);
 		strncpy(crosshair, content, crosshairLength);
 		crosshair[crosshairLength] = '\0';
 		
@@ -139,8 +140,12 @@ int loadConfig(char* configPath, RTSSCrossConfig* config) {
 		if (colorLength < 7) {
 			break;
 		}
-		if (sscanf(content, "#%02x%02x%02x", &red, &green, &blue) < 3) {
+		int colorNo = sscanf(content, "#%02x%02x%02x%02x", &red, &green, &blue, &alpha);
+		if (colorNo < 3) {
 			break;
+		}
+		else if (colorNo < 4) {
+			alpha = 0xFF;
 		}
 		complete = true;
 	} while (false);
@@ -148,7 +153,7 @@ int loadConfig(char* configPath, RTSSCrossConfig* config) {
 	// apply values after reading successfully
 	if (complete) {
 
-		strncpy(config->crosshair, crosshair, min(sizeof(config->crosshair) - 1, sizeof(crosshair) - 1));
+		strncpy(config->crosshair, crosshair, imin(sizeof(config->crosshair) - 1, sizeof(crosshair) - 1));
 		config->crosshair[sizeof(config->crosshair) - 1] = '\0';
 		config->position[0] = posX;
 		config->position[1] = posY;
@@ -156,6 +161,7 @@ int loadConfig(char* configPath, RTSSCrossConfig* config) {
 		config->color[0] = red;
 		config->color[1] = green;
 		config->color[2] = blue;
+		config->color[3] = alpha;
 		return 0;
 	} else {
 		return -3;
@@ -365,21 +371,27 @@ bool processUpdateUserAction(CrossActionArgs* args, RTSSCrossConfig* config, Ren
 bool processTintUserAction(CrossActionArgs* args, RTSSCrossConfig* config, RenderPassState* state) {
 	bool changed = false;
 	//move(state->linesFilled, 0);
-	printw("Current color is #%02x%02x%02x\n", config->color[0], 
-		config->color[1], config->color[2]);
-	printw("Enter new color (r, g, b) or (rrggbb): #");
+	printw("Current color is #%02x%02x%02x%02x\n", config->color[0], 
+		config->color[1], config->color[2], config->color[3]);
+	printw("Enter new color (r, g, b, a) or (rrggbbaa): #");
 	refresh();
 	char inputBuffer[256];
 	echo();
 	getstr(inputBuffer);
 	if (!changed) {
 		// search for r, g, b pattern
-		int r, g, b;
-		if (sscanf(inputBuffer, "%03i,%03i,%03i", &r, &g, &b) >= 3) {
-			if (r < 256 && g < 256 && b < 256) {
+		int r, g, b, a;
+		int colorNo = sscanf(inputBuffer, "%03i,%03i,%03i,%03i", &r, &g, &b, &a);
+		if (colorNo >= 3) {
+			if (r <= 0xFF && g <= 0xFF && b <= 0xFF && a <= 0xFF) {
 				config->color[0] = r;
 				config->color[1] = g;
 				config->color[2] = b;
+				if (colorNo > 3) {
+					config->color[3] = a;
+				} else {
+					config->color[3] = 0xFF;
+				}
 				changed = true;
 			}
 		}
@@ -387,18 +399,24 @@ bool processTintUserAction(CrossActionArgs* args, RTSSCrossConfig* config, Rende
 	
 	if (!changed) {
 		// search for #rrggbb pattern
-		int r, g, b;
-		if (sscanf(inputBuffer, "%02x%02x%02x", &r, &g, &b) >= 3) {
+		int r, g, b, a;
+		int colorNo = sscanf(inputBuffer, "%02x%02x%02x%02x", &r, &g, &b, &a);
+		if (colorNo >= 3) {
 			config->color[0] = r;
 			config->color[1] = g;
 			config->color[2] = b;
+			if (colorNo > 3) {
+				config->color[3] = a;
+			} else {
+				config->color[3] = 0xFF;
+			}
 			changed = true;
 		}
 	}
 	if (!changed) {
 		printw("Wrong format! Please specify your desired color as ");
-		printw("three comma delimited values in [0-255] (e.g. 128,234,56) or ");
-		printw("a hexadecimal representation (e.g. 70FF3A)\n");
+		printw("three or four comma seperated values in [0-255] (e.g. 128,234,56) or ");
+		printw("a hexadecimal representation (e.g. 70F03AFF)\n");
 	}
 	// we expect some lines to wrap so we get the actual number of lines written from curses
 	int cursorX, cursorY;
@@ -556,7 +574,7 @@ bool processRenameUserAction(CrossActionArgs* args, RTSSCrossConfig* config, Ren
 	getnstr(inputBuffer, sizeof(inputBuffer) - 1);
 	state->linesFilled += 2;
 	// process user input
-	strncpy(config->crosshair, inputBuffer, min(sizeof(config->crosshair) - 1, sizeof(inputBuffer)));
+	strncpy(config->crosshair, inputBuffer, imin(sizeof(config->crosshair) - 1, sizeof(inputBuffer)));
 	config->crosshair[sizeof(config->crosshair) - 1] = '\0';
 	printw("New crosshair is %s\n", config->crosshair);
 	state->linesFilled += 1;
@@ -588,6 +606,10 @@ bool processLoadUserAction(CrossActionArgs* args, RTSSCrossConfig* config, Rende
 	}
 	return true;
 }
+int imin(int i1, int i2) {
+	return i1 < i2 ? i1 : i2;
+}
+
 CrossActionType runInteractiveProgram(RTSSCrossConfig* config, RenderPassState* state) {
 	// wait and process user input
 	char entryName[32] = "RivaCross_Crosshair";

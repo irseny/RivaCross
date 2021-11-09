@@ -1,6 +1,8 @@
 # ignore build output and additional libraries
 RivaCross.exe
 obj/*.obj
+obj/*.o
 lib/*.lib
+lib/*.a
 lib/*.dll
 lib/*.exp

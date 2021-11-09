@@ -29,6 +29,5 @@ SOFTWARE.
 #include <memory.h>
 #include <stdio.h>
 #include <conio.h>
-
 //#define PDC_DLL_BUILD
 #include "curses.h"

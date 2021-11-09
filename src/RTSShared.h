@@ -501,7 +501,7 @@ typedef struct RTSSCrossConfig {
 	char crosshair[64]; // crosshair text
 	int position[2]; // position on screen (coordinate system determined by RTSS)
 	unsigned int scale; // crosshair size (usage depends on RTSS configuration)
-	unsigned char color[3]; // color in RGB format
+	unsigned char color[4]; // color in RGBA format
 } RTSSCrossConfig;
 
 int RTSSUpdateOSDEntry(const RTSSCrossConfig* config, const char* osdEntry);

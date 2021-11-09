@@ -69,5 +69,6 @@ bool processLoadUserAction(CrossActionArgs* args, RTSSCrossConfig* config, Rende
 bool processTintUserAction(CrossActionArgs* args, RTSSCrossConfig* config, RenderPassState* state);
 bool processMoveUserAction(CrossActionArgs* args, RTSSCrossConfig* config, RenderPassState* state);
 bool processScaleUserAction(CrossActionArgs* args, RTSSCrossConfig* config, RenderPassState* state);
+int imin(int i1, int i2);
 
 CrossActionType runInteractiveProgram(RTSSCrossConfig* config, RenderPassState* state);

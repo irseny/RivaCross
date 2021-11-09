@@ -1,17 +1,15 @@
-CXXFLAGS = /I include
-LDDFLAGS =  kernel32.lib user32.lib Advapi32.lib lib/pdcurses.lib
-OBJS = obj\Main.obj obj\RivaCross.obj obj\RTSShared.obj
-LINK = link.exe
-RM = del
+CXXFLAGS = -Iinclude -Wno-multichar
+LDDFLAGS = lib/pdcurses.a
+OBJS = obj/Main.o obj/RivaCross.o obj/RTSShared.o
+RM = rm
 
 all: RivaCross.exe
 
 RivaCross.exe: $(OBJS)
-	$(LINK) $** /OUT:$@ $(LDDFLAGS)
-
+	$(CXX) -o $@ $^ $(LDDFLAGS)
 	
-{src}.cpp{obj}.obj::
-	$(CXX) $(CXXFLAGS) /c /Fo:obj\ $<
+obj/%.o: src/%.cpp
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 clean:
 	$(RM) RivaCross.exe
