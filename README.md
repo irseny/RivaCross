@@ -24,7 +24,7 @@ Releases
 
 The current binary package of RivaCross is available in the 
 [Releases section](https://github.com/irseny/RivaCross/releases)
-([Direct download](https://github.com/irseny/RivaCross/releases/download/v0.5.2/RivaCross.Windows.64bit.zip)
+([Direct download](https://github.com/irseny/RivaCross/releases/download/v0.5.2/RivaCross.Windows.64bit.zip )
 
 Usage
 -----
