@@ -8,6 +8,8 @@ RivaCross makes use of a feature in RivaTuner Statistics Server (RTSS)
 that enables the addition of custom text to the RTSS on screen display (OSD).<br>
 It includes a simple text terminal user interface for crosshair customization.
 
+This project is no longer maintained.
+
 Examples
 --------
 These examples show different crosshair designs made with RivaCross.<br>
